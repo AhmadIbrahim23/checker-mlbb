@@ -11,12 +11,12 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "/backend/server.js"
+      "src": "/backend(.*)",
+      "dest": "server.js"
     },
     {
       "src": "/frontend(.*)",
-      "dest": "/frontend/index.html"
+      "dest": "index.html"
     }
   ]
 }
