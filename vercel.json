@@ -11,7 +11,7 @@
   ],
   "routes": [
     {
-      "src": "/backend/(.*)",
+      "src": "/api/validasi(.*)",
       "dest": "server.js"
     },
     {
