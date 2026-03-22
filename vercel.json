@@ -11,7 +11,7 @@
       "dest": "server.js"
     },
     {
-      "src": "/(.*)",
+      "src": "/frontend(.*)",
       "dest": "/frontend/index.html"
     }
   ]
