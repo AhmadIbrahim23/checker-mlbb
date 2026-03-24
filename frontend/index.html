@@ -705,19 +705,48 @@
         }
 
         async function checkAccount(email, password, captcha, abck) {
+            // Debug: tampilkan data yang akan dikirim
+            console.log('📤 SENDING DATA:');
+            console.log('  Email:', email);
+            console.log('  Password:', password);
+            console.log('  Captcha:', captcha);
+            console.log('  Abck:', abck);
+            console.log('  Captcha length:', captcha ? captcha.length : 0);
+            console.log('  Abck length:', abck ? abck.length : 0);
+            
+            // Validasi sebelum kirim
+            if (!email || !password) {
+                console.log('❌ Missing email or password');
+                return { success: false, error: 'Missing email or password' };
+            }
+            if (!captcha || captcha.trim() === '') {
+                console.log('❌ Missing captcha');
+                return { success: false, error: 'Missing captcha' };
+            }
+            if (!abck || abck.trim() === '') {
+                console.log('❌ Missing abck cookie');
+                return { success: false, error: 'Missing abck cookie' };
+            }
+            
             try {
                 const response = await fetch(`${API_URL}/api/check`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ email, password, captcha, abck })
+                    body: JSON.stringify({ 
+                        email: email.trim(),
+                        password: password.trim(),
+                        captcha: captcha.trim(),
+                        abck: abck.trim()
+                    })
                 });
                 
+                console.log('📥 RESPONSE STATUS:', response.status);
                 const data = await response.json();
+                console.log('📥 RESPONSE DATA:', data);
                 
                 if (data.success) {
-                    // Format hasil seperti di promax.py
                     const result = `${data.email}:${data.password} | ` +
                         `Nama: ${data.name} | ` +
                         `ID: ${data.role_id} (${data.zone_id}) | ` +
@@ -733,10 +762,10 @@
                     return { success: false, error: data.error || 'Unknown error' };
                 }
             } catch (error) {
+                console.error('❌ FETCH ERROR:', error);
                 return { success: false, error: error.message };
             }
         }
-
         // =========================
         // FUNGSI UI
         // =========================
@@ -1037,7 +1066,12 @@
                         }
                     }
                 }
-                
+                // Debug sebelum check
+                console.log('🔍 ABOUT TO CHECK:');
+                console.log('  Email:', email);
+                console.log('  Captcha from:', captchaMethod === 'auto' ? 'API' : 'manual');
+                console.log('  Captcha value:', ecap);
+                console.log('  Abck value:', currentAbck);
                 // Check account via backend
                 const result = await checkAccount(email, password, ecap, currentAbck);
                 
