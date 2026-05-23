@@ -290,15 +290,15 @@ def health_check():
 
 @app.route('/api/captcha', methods=['GET'])
 def get_captcha():
-    # Coba dari freecn31 dulu (prioritas)
+    # Try freecn31 API first
+    freecn31_url = "https://checkton.online/backend/freecn31"
+    freecn31_key = "ZaTNsiyGeEiA20uyTN68keUnRVI4teDTdfhKBzy7JsM"
+    
     try:
-        headers = {
-            "x-api-key": FREE_CN31_API_KEY
-        }
-        response = requests.get(FREE_CN31_API_URL, headers=headers, timeout=10)
+        headers = {"x-api-key": freecn31_key}
+        response = requests.get(freecn31_url, headers=headers, timeout=10)
         data = response.json()
         
-        # Format response: {"status": "true", "cn31": "token_xxx", "time_expired": "..."}
         if data.get("status") == "true" and data.get("cn31"):
             return jsonify({
                 "success": True,
@@ -307,10 +307,11 @@ def get_captcha():
     except Exception as e:
         print(f"FreeCN31 API error: {e}")
     
-    # Fallback ke API lama
+    # Fallback to old API
+    old_api_url = "http://149.104.77.174:1337/token"
     for attempt in range(2):
         try:
-            response = requests.get(CAPTCHA_API_URL, timeout=10)
+            response = requests.get(old_api_url, timeout=10)
             data = response.json()
             
             if data.get("success") and data.get("token"):
