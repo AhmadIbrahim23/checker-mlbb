@@ -19,6 +19,13 @@ CAPTCHA_API_URL = "http://149.104.77.174:1337/token"  # existing
 FREE_CN31_API_URL = "https://checkton.online/backend/freecn31"
 FREE_CN31_API_KEY = "ZaTNsiyGeEiA20uyTN68keUnRVI4teDTdfhKBzy7JsM"
 
+# Proxy configuration
+PROXY_URL = "http://1345:HO9jjBq4TSgc@p103.dynaprox.com:9080"
+PROXIES = {
+    "http": PROXY_URL,
+    "https": PROXY_URL
+}
+
 BINDING_MAP = {
     "mt-and_": "Moonton",
     "fb-and_": "Facebook",
@@ -187,7 +194,7 @@ def get_creation_date(role_id, zone_id):
         
         for attempt in range(2):
             try:
-                r = requests.post(API_URL, data={"data": payload}, timeout=10)
+                r = requests.post(API_URL, data={"data": payload}, proxies=PROXIES, timeout=10)
                 r.raise_for_status()
                 result = r.json()
                 
@@ -219,7 +226,8 @@ def get_ban_info(jwt, lang="en"):
         
         for attempt in range(2):
             try:
-                r = requests.post(url, headers=headers, data=payload, timeout=10)
+                # TAMBAHKAN PROXY DI SINI
+                r = requests.post(url, headers=headers, data=payload, proxies=PROXIES, timeout=10)
                 data = r.json()
                 
                 if data.get("code") == 0 and data.get("status") == "success":
@@ -296,7 +304,8 @@ def get_captcha():
     
     try:
         headers = {"x-api-key": freecn31_key}
-        response = requests.get(freecn31_url, headers=headers, timeout=10)
+        # TAMBAHKAN PROXY DI SINI
+        response = requests.get(freecn31_url, headers=headers, proxies=PROXIES, timeout=10)
         data = response.json()
         
         if data.get("status") == "true" and data.get("cn31"):
@@ -311,7 +320,8 @@ def get_captcha():
     old_api_url = "http://149.104.77.174:1337/token"
     for attempt in range(2):
         try:
-            response = requests.get(old_api_url, timeout=10)
+            # TAMBAHKAN PROXY DI SINI
+            response = requests.get(old_api_url, proxies=PROXIES, timeout=10)
             data = response.json()
             
             if data.get("success") and data.get("token"):
@@ -341,6 +351,9 @@ def check_account():
             return jsonify({"success": False, "status": "error", "message": "Captcha token required"})
         
         session = requests.Session()
+        # TAMBAHKAN PROXY KE SESSION
+        session.proxies.update(PROXIES)
+        
         session.headers.update({
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
             "Accept": "application/json",
@@ -368,6 +381,7 @@ def check_account():
         }
         
         try:
+            # Request ke MLBB login (sudah pakai proxy via session)
             r = session.post(URL, json=payload, timeout=15)
             
             try:
@@ -390,6 +404,7 @@ def check_account():
                     return jsonify({"success": False, "status": "invalid", "message": "No session token"})
                 
                 jwt_payload = {"id": gui, "token": session_token, "type": "mt_And"}
+                # Request JWT (sudah pakai proxy via session)
                 jwt_req = session.post(
                     "https://api.mobilelegends.com/tools/deleteaccount/getToken",
                     json=jwt_payload,
@@ -402,10 +417,11 @@ def check_account():
                     return jsonify({"success": False, "status": "invalid", "message": "No JWT token"})
                 
                 jwt = jwt_data["data"]["jwt"]
-                ban_info = get_ban_info(jwt)
+                ban_info = get_ban_info(jwt)  # Fungsi ini juga perlu proxy
                 ban_status = ban_info.get("status", "No")
                 
                 try:
+                    # Request bind check (sudah pakai proxy via session)
                     bind_check = session.post(
                         "https://api.mobilelegends.com/tools/deleteaccount/getCancelAccountInfo",
                         headers={"Authorization": f"Bearer {jwt}"},
@@ -418,6 +434,7 @@ def check_account():
                     bindings_text = "Binding Error"
                 
                 try:
+                    # Request info akun (sudah pakai proxy via session)
                     info_req = session.post(
                         "https://sg-api.mobilelegends.com/base/getBaseInfo",
                         headers={"Authorization": f"Bearer {jwt}"},
