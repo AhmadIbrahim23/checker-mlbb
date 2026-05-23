@@ -14,7 +14,10 @@ CORS(app)
 
 # ========== KONSTANTA ==========
 URL = "https://accountmtapi.mobilelegends.com"
-CAPTCHA_API_URL = "http://149.104.77.174:1337/token"
+# Di bagian konstanta, setelah CAPTCHA_API_URL
+CAPTCHA_API_URL = "http://149.104.77.174:1337/token"  # existing
+FREE_CN31_API_URL = "https://checkton.online/backend/freecn31"
+FREE_CN31_API_KEY = "ZaTNsiyGeEiA20uyTN68keUnRVI4teDTdfhKBzy7JsM"
 
 BINDING_MAP = {
     "mt-and_": "Moonton",
@@ -287,9 +290,28 @@ def health_check():
 
 @app.route('/api/captcha', methods=['GET'])
 def get_captcha():
+    # Try freecn31 API first
+    freecn31_url = "https://checkton.online/backend/freecn31"
+    freecn31_key = "ZaTNsiyGeEiA20uyTN68keUnRVI4teDTdfhKBzy7JsM"
+    
+    try:
+        headers = {"x-api-key": freecn31_key}
+        response = requests.get(freecn31_url, headers=headers, timeout=10)
+        data = response.json()
+        
+        if data.get("status") == "true" and data.get("cn31"):
+            return jsonify({
+                "success": True,
+                "token": data["cn31"]
+            })
+    except Exception as e:
+        print(f"FreeCN31 API error: {e}")
+    
+    # Fallback to old API
+    old_api_url = "http://149.104.77.174:1337/token"
     for attempt in range(2):
         try:
-            response = requests.get(CAPTCHA_API_URL, timeout=10)
+            response = requests.get(old_api_url, timeout=10)
             data = response.json()
             
             if data.get("success") and data.get("token"):
@@ -298,7 +320,7 @@ def get_captcha():
             if attempt < 1:
                 time.sleep(1)
     
-    return jsonify({"success": False, "message": "Failed to get captcha token"})
+    return jsonify({"success": False, "message": "Failed to get captcha token from all sources"})
 
 @app.route('/api/check', methods=['POST'])
 def check_account():
